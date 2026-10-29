@@ -5,11 +5,12 @@ import { getSetting, setSetting } from '../settings.js';
 import { todayISO, addDays } from '../utils.js';
 import { setTopbar, setScreen, showTabbar, personRowHtml } from '../ui.js';
 import { navigate } from '../router.js';
+import { isSyncEnabled } from '../sync.js';
 
 export async function renderHome() {
   setTopbar(`
     <h1>${APP_NAME}</h1>
-    <button class="icon-btn" id="btn-account" aria-label="الحساب والبيانات">${Icon.cloud}</button>
+    <button class="icon-btn" id="btn-account" aria-label="الحساب والبيانات">${isSyncEnabled() ? Icon.cloudCheck : Icon.cloud}</button>
   `);
   showTabbar('home', (tab) => navigate(tab === 'home' ? '/' : '/people'));
   document.getElementById('btn-account').onclick = () => navigate('/account');

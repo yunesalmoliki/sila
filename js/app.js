@@ -1,29 +1,16 @@
 import { mountShell } from './ui.js';
-import { route, notFound, startRouter, navigate } from './router.js';
-import { setMode } from './db.js';
-import { isConfigured, watchAuth } from './data/cloudAdapter.js';
+import { route, notFound, startRouter, navigate, refresh, currentRoutePath } from './router.js';
+import { startAutoSync } from './sync.js';
 import { renderHome } from './screens/home.js';
 import { renderPeople } from './screens/people.js';
 import { renderPersonForm } from './screens/personForm.js';
 import { renderPersonDetail } from './screens/personDetail.js';
 import { renderMessage } from './screens/message.js';
 import { renderAccount } from './screens/account.js';
+import { showWelcome } from './screens/welcome.js';
 
-async function boot() {
+function boot() {
   mountShell(document.getElementById('app-root'));
-
-  // إن كانت المزامنة مُعدَّة فعلًا، ننتظر أول تحقّق من حالة الدخول (سريع جدًا محليًا)
-  // قبل رسم أي شاشة، حتى لا تظهر بيانات محلية للحظة ثم تُستبدل ببيانات الحساب.
-  // إن لم تكن مُعدَّة، هذا كله يُتجاوز فورًا بلا أي تأخير أو اتصال شبكي.
-  if (isConfigured()) {
-    await new Promise((resolve) => {
-      let settled = false;
-      watchAuth((user) => {
-        setMode(user ? 'cloud' : 'local');
-        if (!settled) { settled = true; resolve(); }
-      });
-    });
-  }
 
   route('/', () => renderHome());
   route('/people', () => renderPeople());
@@ -36,6 +23,14 @@ async function boot() {
   notFound(() => navigate('/'));
 
   startRouter();
+  showWelcome();
+
+  // بعد دمج بيانات من جهاز آخر: حدّث الشاشات القرائية فقط، ولا تقاطع من يكتب في نموذج
+  window.addEventListener('sila:data-merged', () => {
+    const path = currentRoutePath();
+    if (path === '/' || path === '/people' || /^\/person\/[^/]+$/.test(path)) refresh();
+  });
+  startAutoSync();
 }
 
 boot();

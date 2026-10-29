@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تحميل صِلة</title>
+  <meta name="description" content="حمّل صِلة مجانًا: تطبيق يذكّرك بصلة أهلك وأصدقائك." />
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#1F1B18; --ink2:#6B5F58; --paper:#F3ECDD; --card:#FFFDF8; --clay:#B5502C; --clay-d:#8F3F22; --sage:#45543D; --sage-bg:#E5EADD; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:var(--paper); color:var(--ink); line-height:1.8;
+      background-image: radial-gradient(560px circle at 8% -8%, rgba(181,80,44,.12), transparent 58%), radial-gradient(480px circle at 108% 12%, rgba(91,110,82,.12), transparent 55%); }
+    main { max-width: 560px; margin: 0 auto; padding: 36px 20px 48px; }
+    .logo { width: 92px; height: 92px; display:block; margin: 0 auto 12px; border-radius: 24px; box-shadow: 0 10px 28px -6px rgba(46,32,20,.25); }
+    h1 { text-align:center; font-size: 30px; margin: 0 0 4px; }
+    .tag { text-align:center; color: var(--ink2); margin: 0 0 28px; }
+    .card { background: var(--card); border-radius: 22px; padding: 20px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(46,32,20,.08); }
+    .card h2 { margin: 0 0 6px; font-size: 17px; }
+    .card p { margin: 0 0 14px; color: var(--ink2); font-size: 14.5px; }
+    .btn { display:block; text-align:center; text-decoration:none; font-weight:600; padding: 14px 18px; border-radius: 14px; background: var(--clay); color:#fff; box-shadow: 0 6px 16px -2px rgba(181,80,44,.38); }
+    .btn.alt { background: var(--sage-bg); color: var(--sage); box-shadow:none; }
+    ol { margin: 0; padding: 0 20px 0 0; color: var(--ink2); font-size: 14.5px; }
+    footer { text-align:center; color: var(--ink2); font-size: 13.5px; margin-top: 26px; }
+    footer b { color: var(--ink); }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="logo" src="icons/icon-192.png" alt="شعار صِلة" />
+    <h1>صِلة</h1>
+    <p class="tag">يذكّرك بمن طال غيابه من أهلك وأصدقائك، ويجهّز لك رسالة ترسلها بنفسك.</p>
+
+    <section class="card">
+      <h2>فتح التطبيق الآن</h2>
+      <p>يعمل من المتصفح مباشرة على أي هاتف أو حاسوب، ويمكن تثبيته على الشاشة الرئيسية.</p>
+      <a class="btn" href="./">افتح صِلة</a>
+    </section>
+
+    <section class="card">
+      <h2>أندرويد — تطبيق مستقل</h2>
+      <p>حمّل ملف التطبيق وثبّته. إن ظهر تنبيه، اسمح بالتثبيت من هذا المصدر.</p>
+      <a class="btn alt" href="https://github.com/yunesalmoliki/sila/releases/latest/download/sila.apk">تحميل sila.apk</a>
+    </section>
+
+    <section class="card">
+      <h2>آيفون</h2>
+      <ol>
+        <li>افتح الرابط في متصفح سفاري.</li>
+        <li>اضغط زر المشاركة.</li>
+        <li>اختر «إضافة إلى الشاشة الرئيسية».</li>
+      </ol>
+    </section>
+
+    <footer>تطوير: <b>يونس الملكي</b></footer>
+  </main>
+</body>
+</html>

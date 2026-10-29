@@ -34,7 +34,22 @@ export function buildDailyReminderIcs(timeHHMM, appUrl) {
   return lines.join('\r\n') + '\r\n';
 }
 
+function isNative() {
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+
+// في تطبيق الأندرويد لا تعمل روابط التنزيل، فنحفظ الملف ثم نفتح قائمة المشاركة/الحفظ
+async function shareNative(content, filename) {
+  const { Filesystem, Share } = window.Capacitor.Plugins;
+  const written = await Filesystem.writeFile({ path: filename, data: content, directory: 'CACHE', encoding: 'utf8' });
+  await Share.share({ title: filename, url: written.uri, dialogTitle: filename });
+}
+
 export function downloadBlob(content, filename, type) {
+  if (isNative()) {
+    shareNative(content, filename).catch(() => {});
+    return;
+  }
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

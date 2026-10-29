@@ -2,7 +2,7 @@
 // حتى بلا إنترنت من الزيارة الثانية فصاعدًا. لا علاقة له ببيانات المستخدم
 // (تلك تبقى في localStorage/Firestore دائمًا)، فقط ملفات التطبيق نفسه.
 
-const CACHE_VERSION = 'sila-v2';
+const CACHE_VERSION = 'sila-v3';
 
 const PRECACHE_URLS = [
   './',
@@ -12,14 +12,15 @@ const PRECACHE_URLS = [
   './js/app.js',
   './js/content.js',
   './js/db.js',
-  './js/firebaseConfig.js',
   './js/icons.js',
   './js/reminders.js',
   './js/router.js',
   './js/settings.js',
+  './js/sync.js',
+  './js/syncConfig.js',
+  './js/syncMerge.js',
   './js/ui.js',
   './js/utils.js',
-  './js/data/cloudAdapter.js',
   './js/data/localAdapter.js',
   './js/screens/account.js',
   './js/screens/home.js',
@@ -28,6 +29,7 @@ const PRECACHE_URLS = [
   './js/screens/people.js',
   './js/screens/personDetail.js',
   './js/screens/personForm.js',
+  './js/screens/welcome.js',
   './icons/apple-touch-icon.png',
   './icons/favicon-32.png',
   './icons/icon-192.png',

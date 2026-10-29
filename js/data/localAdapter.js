@@ -10,21 +10,37 @@ const STORAGE_KEY = 'sila.v1';
 function loadRaw() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { people: [], contactLogs: [] };
+    if (!raw) return { people: [], contactLogs: [], deleted: {} };
     const parsed = JSON.parse(raw);
     return {
       people: Array.isArray(parsed.people) ? parsed.people : [],
       contactLogs: Array.isArray(parsed.contactLogs) ? parsed.contactLogs : [],
+      deleted: parsed.deleted && typeof parsed.deleted === 'object' ? parsed.deleted : {},
     };
   } catch {
-    return { people: [], contactLogs: [] };
+    return { people: [], contactLogs: [], deleted: {} };
   }
 }
 
 let state = loadRaw();
 
-function persist() {
+function persist({ silent = false } = {}) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (!silent) window.dispatchEvent(new CustomEvent('sila:data-changed'));
+}
+
+// للمزامنة: لقطة كاملة، وتطبيق نتيجة دمج دون إطلاق حدث تغيير جديد
+export function getSyncSnapshot() {
+  return JSON.parse(JSON.stringify(state));
+}
+
+export function applyMergedState(merged) {
+  state = {
+    people: merged.people,
+    contactLogs: merged.contactLogs,
+    deleted: merged.deleted || {},
+  };
+  persist({ silent: true });
 }
 
 // --- الأشخاص ---
@@ -73,6 +89,7 @@ export function setArchived(id, archived) {
 export function deletePerson(id) {
   state.people = state.people.filter((p) => p.id !== id);
   state.contactLogs = state.contactLogs.filter((l) => l.personId !== id);
+  state.deleted[id] = new Date().toISOString();
   persist();
 }
 
@@ -148,6 +165,7 @@ export function exportBackup() {
     exportedAt: new Date().toISOString(),
     people: state.people,
     contactLogs: state.contactLogs,
+    deleted: state.deleted,
   };
 }
 
@@ -155,6 +173,6 @@ export function importBackup(data) {
   if (!data || !Array.isArray(data.people) || !Array.isArray(data.contactLogs)) {
     throw new Error('ملف نسخة احتياطية غير صالح');
   }
-  state = { people: data.people, contactLogs: data.contactLogs };
+  state = { people: data.people, contactLogs: data.contactLogs, deleted: data.deleted && typeof data.deleted === 'object' ? data.deleted : {} };
   persist();
 }

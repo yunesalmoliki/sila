@@ -50,6 +50,10 @@ export function navigate(path) {
   }
 }
 
+export function currentRoutePath() { return currentPath(); }
+
+export function refresh() { resolve(); }
+
 export function back() {
   history.back();
 }

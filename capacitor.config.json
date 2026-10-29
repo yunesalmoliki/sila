@@ -1,0 +1,11 @@
+{
+  "appId": "com.yunesalmoliki.sila",
+  "appName": "صِلة",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#F3ECDD"
+  }
+}
