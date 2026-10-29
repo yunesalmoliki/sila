@@ -36,6 +36,13 @@ jobs:
 
       - run: npm install
 
+      - name: Contacts plugin - ask for read permission only
+        run: |
+          F=node_modules/@capacitor-community/contacts/android/src/main/java/getcapacitor/community/contacts/ContactsPlugin.java
+          sed -i 's/Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS/Manifest.permission.READ_CONTACTS/' "$F"
+          grep -n "permissions = " "$F"
+          grep -q "WRITE_CONTACTS" "$F" && exit 1 || true
+
       - run: npx cap add android
 
       - name: Contacts permission
