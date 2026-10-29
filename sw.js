@@ -2,7 +2,7 @@
 // حتى بلا إنترنت من الزيارة الثانية فصاعدًا. لا علاقة له ببيانات المستخدم
 // (تلك تبقى في localStorage/Firestore دائمًا)، فقط ملفات التطبيق نفسه.
 
-const CACHE_VERSION = 'sila-v4';
+const CACHE_VERSION = 'sila-v5';
 
 const PRECACHE_URLS = [
   './',

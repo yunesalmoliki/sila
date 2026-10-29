@@ -6,8 +6,9 @@ import { navigate, back } from '../router.js';
 import { normalizePhone, toE164, stripE164, parseVCard, toInternationalDigits } from '../utils.js';
 import { getSetting, setSetting, COUNTRIES } from '../settings.js';
 
-const contactPickerSupported = typeof navigator !== 'undefined'
-  && 'contacts' in navigator && 'ContactsManager' in window;
+const isNative = typeof window !== 'undefined' && !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+const contactPickerSupported = isNative
+  || (typeof navigator !== 'undefined' && 'contacts' in navigator && 'ContactsManager' in window);
 
 export async function renderPersonForm(params) {
   const isEdit = !!params.id;
@@ -178,15 +179,29 @@ export async function renderPersonForm(params) {
 
   async function onPickContact() {
     try {
-      const [contact] = await navigator.contacts.select(['name', 'tel'], { multiple: false });
-      if (!contact) return;
-      if (contact.name?.[0]) state.name = contact.name[0];
-      if (contact.tel?.[0]) state.phone = normalizePhone(contact.tel[0]);
+      let name = '';
+      let tel = '';
+      if (isNative) {
+        const { Contacts } = window.Capacitor.Plugins;
+        const { contact } = await Contacts.pickContact({ projection: { name: true, phones: true } });
+        name = contact?.name?.display || [contact?.name?.given, contact?.name?.family].filter(Boolean).join(' ');
+        tel = contact?.phones?.[0]?.number || '';
+      } else {
+        const [contact] = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+        if (!contact) return;
+        name = contact.name?.[0] || '';
+        tel = contact.tel?.[0] || '';
+      }
+      if (name) state.name = name;
+      if (tel) state.phone = tel;
       importMode = false;
       paint();
-      toast(T.personForm.importedToast);
-    } catch {
-      // المستخدم أغلق نافذة الاختيار، أو رفض الإذن — لا حاجة لإزعاجه برسالة
+      toast(tel ? T.personForm.importedToast : T.personForm.importNoPhone);
+    } catch (e) {
+      const msg = String((e && (e.message || e.name)) || '').toLowerCase();
+      const cancelled = (e && e.name === 'AbortError') || msg.includes('cancel') || msg.includes('user');
+      if (msg.includes('denied') || msg.includes('permission')) toast(T.personForm.importDenied);
+      else if (!cancelled) toast(T.personForm.importPickFailed);
     }
   }
 

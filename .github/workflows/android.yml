@@ -38,6 +38,17 @@ jobs:
 
       - run: npx cap add android
 
+      - name: Contacts permission
+        run: |
+          python3 - <<'PY'
+          p = 'android/app/src/main/AndroidManifest.xml'
+          s = open(p, encoding='utf-8').read()
+          perm = '    <uses-permission android:name="android.permission.READ_CONTACTS" />\n'
+          if 'READ_CONTACTS' not in s:
+              s = s.replace('</manifest>', perm + '</manifest>')
+          open(p, 'w', encoding='utf-8').write(s)
+          PY
+
       - name: Launcher icons
         run: npx capacitor-assets generate --android --iconBackgroundColor '#F3ECDD' --iconBackgroundColorDark '#F3ECDD'
 
