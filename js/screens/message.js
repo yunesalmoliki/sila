@@ -5,6 +5,7 @@ import { firstName, buildWaLink, normalizePhone, daysBetween, todayISO } from '.
 import { setTopbar, setScreen, hideTabbar, wireBack, toast, openSheet, escapeHtml } from '../ui.js';
 import { navigate, back } from '../router.js';
 import { openConfirmContactSheet } from './logContact.js';
+import { getInstalledWa, getWaChoice, setWaChoice, openInWa } from '../waLauncher.js';
 
 export async function renderMessage(params) {
   const person = await getPerson(params.id);
@@ -103,17 +104,36 @@ export async function renderMessage(params) {
       <div class="sheet-title">${T.message.confirmTitle}</div>
       <p style="color:var(--ink-600);font-size:13px;margin:-8px 0 12px">${T.message.confirmHint} ${escapeHtml(person.name)}</p>
       <div class="note-box" style="white-space:pre-wrap">${escapeHtml(finalText)}</div>
+      <div id="wa-app-pick"></div>
       <div class="btn-row">
         <button class="btn btn-outline" id="wa-cancel">${T.message.confirmBack}</button>
         <button class="btn btn-whatsapp" id="wa-confirm">${Icon.whatsapp}${T.message.openWhatsapp}</button>
       </div>
     `, {
       onMount(sheetEl, close) {
+        let choice = getWaChoice();
+        let both = false;
+        const pick = sheetEl.querySelector('#wa-app-pick');
+        const paintPick = () => {
+          pick.innerHTML = `
+            <div style="font-size:13px;color:var(--ink-600);margin:0 0 6px">${T.message.waAppLabel}</div>
+            <div class="btn-row" style="margin-bottom:12px">
+              <button class="btn ${choice === 'whatsapp' ? 'btn-primary' : 'btn-outline'}" data-wa="whatsapp">${T.message.waRegular}</button>
+              <button class="btn ${choice === 'business' ? 'btn-primary' : 'btn-outline'}" data-wa="business">${T.message.waBusiness}</button>
+            </div>`;
+          pick.querySelectorAll('[data-wa]').forEach((b) => {
+            b.onclick = () => { choice = b.dataset.wa; setWaChoice(choice); paintPick(); };
+          });
+        };
+        getInstalledWa().then((inst) => {
+          if (inst && inst.whatsapp && inst.business) { both = true; paintPick(); }
+        });
         sheetEl.querySelector('#wa-cancel').onclick = close;
-        sheetEl.querySelector('#wa-confirm').onclick = () => {
+        sheetEl.querySelector('#wa-confirm').onclick = async () => {
           close();
           const link = buildWaLink(person.phone, finalText);
-          window.open(link, '_blank', 'noopener');
+          const opened = both && await openInWa(link, choice);
+          if (!opened) window.open(link, '_blank', 'noopener');
           armReturnPrompt();
         };
       },

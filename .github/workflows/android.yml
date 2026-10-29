@@ -56,6 +56,76 @@ jobs:
           open(p, 'w', encoding='utf-8').write(s)
           PY
 
+      - name: WhatsApp chooser plugin
+        run: |
+          D=android/app/src/main/java/com/yunesalmoliki/sila
+          mkdir -p "$D"
+          cat > "$D/WaLauncherPlugin.java" <<'EOF'
+          package com.yunesalmoliki.sila;
+
+          import android.content.Intent;
+          import android.net.Uri;
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          @CapacitorPlugin(name = "WaLauncher")
+          public class WaLauncherPlugin extends Plugin {
+              private boolean isInstalled(String pkg) {
+                  try {
+                      getContext().getPackageManager().getPackageInfo(pkg, 0);
+                      return true;
+                  } catch (Exception e) {
+                      return false;
+                  }
+              }
+
+              @PluginMethod
+              public void installed(PluginCall call) {
+                  JSObject r = new JSObject();
+                  r.put("whatsapp", isInstalled("com.whatsapp"));
+                  r.put("business", isInstalled("com.whatsapp.w4b"));
+                  call.resolve(r);
+              }
+
+              @PluginMethod
+              public void open(PluginCall call) {
+                  String pkg = call.getString("package");
+                  String url = call.getString("url");
+                  if (url == null || !url.startsWith("https://wa.me/")
+                      || !("com.whatsapp".equals(pkg) || "com.whatsapp.w4b".equals(pkg))) {
+                      call.reject("invalid");
+                      return;
+                  }
+                  try {
+                      Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                      i.setPackage(pkg);
+                      i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                      getContext().startActivity(i);
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(String.valueOf(e.getMessage()));
+                  }
+              }
+          }
+          EOF
+          cat > "$D/MainActivity.java" <<'EOF'
+          package com.yunesalmoliki.sila;
+
+          import android.os.Bundle;
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(WaLauncherPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          EOF
+
       - name: Launcher icons
         run: npx capacitor-assets generate --android --iconBackgroundColor '#F3ECDD' --iconBackgroundColorDark '#F3ECDD'
 

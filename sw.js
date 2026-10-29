@@ -2,7 +2,7 @@
 // حتى بلا إنترنت من الزيارة الثانية فصاعدًا. لا علاقة له ببيانات المستخدم
 // (تلك تبقى في localStorage/Firestore دائمًا)، فقط ملفات التطبيق نفسه.
 
-const CACHE_VERSION = 'sila-v5';
+const CACHE_VERSION = 'sila-v6';
 
 const PRECACHE_URLS = [
   './',
@@ -21,6 +21,7 @@ const PRECACHE_URLS = [
   './js/syncMerge.js',
   './js/ui.js',
   './js/utils.js',
+  './js/waLauncher.js',
   './js/data/localAdapter.js',
   './js/screens/account.js',
   './js/screens/home.js',
