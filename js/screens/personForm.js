@@ -4,7 +4,7 @@ import { getPerson, createPerson, updatePerson, deletePerson, setArchived } from
 import { setTopbar, setScreen, hideTabbar, wireBack, toast, iconChip, escapeHtml } from '../ui.js';
 import { navigate, back } from '../router.js';
 import { normalizePhone, toE164, stripE164, parseVCard, toInternationalDigits } from '../utils.js';
-import { getSetting } from '../settings.js';
+import { getSetting, setSetting, COUNTRIES } from '../settings.js';
 
 const contactPickerSupported = typeof navigator !== 'undefined'
   && 'contacts' in navigator && 'ContactsManager' in window;
@@ -51,6 +51,12 @@ export async function renderPersonForm(params) {
         <label>${T.personForm.phone}</label>
         <input type="tel" inputmode="numeric" id="f-phone" placeholder="0501234567" value="${escapeHtml(state.phone)}" />
         <div class="help" id="phone-preview">${T.personForm.phoneHelp}</div>
+        <div id="cc-pick" style="display:none;margin-top:8px">
+          <select id="f-cc" class="select" aria-label="${T.personForm.pickCountry}">
+            <option value="">${T.personForm.pickCountry}</option>
+            ${COUNTRIES.map((c) => `<option value="${c.cc}">${c.name} (+${c.cc})</option>`).join('')}
+          </select>
+        </div>
         <div class="field-error" id="err-phone" style="display:none">${T.personForm.phoneRequired}</div>
       </div>
 
@@ -95,9 +101,14 @@ export async function renderPersonForm(params) {
     document.getElementById('f-name').oninput = (e) => { state.name = e.target.value; };
     const updatePhonePreview = () => {
       const intl = toInternationalDigits(state.phone, getSetting('defaultCc'));
-      document.getElementById('phone-preview').textContent = intl
-        ? `${T.personForm.phonePreview} ‎+${intl}`
-        : T.personForm.phoneHelp;
+      const unresolved = intl.startsWith('0');
+      document.getElementById('cc-pick').style.display = unresolved ? 'block' : 'none';
+      document.getElementById('phone-preview').textContent = unresolved
+        ? T.personForm.needsCountry
+        : intl ? `${T.personForm.phonePreview} ‎+${intl}` : T.personForm.phoneHelp;
+    };
+    document.getElementById('f-cc').onchange = (e) => {
+      if (e.target.value) { setSetting('defaultCc', e.target.value); updatePhonePreview(); }
     };
     updatePhonePreview();
     document.getElementById('f-phone').oninput = (e) => { state.phone = e.target.value; updatePhonePreview(); };
@@ -205,7 +216,7 @@ export async function renderPersonForm(params) {
       ok = false;
     }
     const digits = toInternationalDigits(state.phone, getSetting('defaultCc'));
-    if (digits.length < 8) {
+    if (digits.length < 8 || digits.startsWith('0')) {
       document.getElementById('err-phone').style.display = 'block';
       ok = false;
     }
