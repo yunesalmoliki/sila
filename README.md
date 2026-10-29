@@ -4,6 +4,7 @@
 مجاني، يعمل بلا إنترنت، وبياناتك تبقى على جهازك (مع مزامنة مشفّرة اختيارية بين أجهزتك).
 
 - **فتح التطبيق / التثبيت:** https://yunesalmoliki.github.io/sila/
+- **نسخة Cloudflare:** https://sila.myu576602.workers.dev/
 - **صفحة التحميل:** https://yunesalmoliki.github.io/sila/get.html
 - **أندرويد (APK):** https://github.com/yunesalmoliki/sila/releases/latest/download/sila.apk
 
